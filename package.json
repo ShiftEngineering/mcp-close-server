@@ -1,0 +1,27 @@
+{
+  "name": "mcp-close-server",
+  "version": "1.0.0",
+  "description": "MCP server for Close.com integration",
+  "main": "build/index.js",
+  "type": "module",
+  "bin": {
+    "mcp-close-server": "./build/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod 755 build/index.js",
+    "start": "node build/index.js",
+    "dev": "tsc && node build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "node-fetch": "^3.3.2",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "build"
+  ]
+}
