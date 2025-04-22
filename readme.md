@@ -13,6 +13,33 @@ An MCP (Model Context Protocol) server that connects to Close.com API, allowing 
 - Search for tasks
 - Create, update, and delete tasks
 - Test connection to Close.com API
+- Lead Management
+  - Search leads with advanced filtering
+  - Create, update, and delete leads
+  - Get detailed lead information
+  - Format lead data for easy reading
+- Contact Management
+  - Search contacts with advanced filtering
+  - Create, update, and delete contacts
+  - Get detailed contact information
+  - Format contact data for easy reading
+- Email Activity Management
+  - Search email activities with advanced filtering
+  - Create, update, and delete email activities
+  - Get detailed email information
+  - Format email data for easy reading
+- Task Management
+  - Search tasks with advanced filtering
+  - Create, update, and delete tasks
+  - Get detailed task information
+  - Format task data for easy reading
+- Opportunity Management
+  - Search opportunities with advanced filtering
+  - Create, update, and delete opportunities
+  - Get detailed opportunity information
+  - Format opportunity data for easy reading
+  - Track opportunity values and confidence levels
+  - Manage opportunity status and won dates
 
 ## Prerequisites
 
@@ -178,6 +205,74 @@ Parameters:
 Test the connection to Close.com API.
 
 No parameters required.
+
+### Opportunity Tools
+
+#### search_opportunities
+Search for opportunities in Close.com with various filters.
+
+Parameters:
+- `lead_id` (optional): Filter by lead ID
+- `user_id` (optional): Filter by user ID
+- `status_id` (optional): Filter by status ID
+- `status_label` (optional): Filter by status label
+- `status_type` (optional): Filter by status type
+- `date_created__lt` (optional): Filter by creation date before (ISO format)
+- `date_created__gt` (optional): Filter by creation date after (ISO format)
+- `date_created__lte` (optional): Filter by creation date before or equal (ISO format)
+- `date_created__gte` (optional): Filter by creation date after or equal (ISO format)
+- `date_updated__lt` (optional): Filter by update date before (ISO format)
+- `date_updated__gt` (optional): Filter by update date after (ISO format)
+- `date_updated__lte` (optional): Filter by update date before or equal (ISO format)
+- `date_updated__gte` (optional): Filter by update date after or equal (ISO format)
+- `date_won__lt` (optional): Filter by won date before (ISO format)
+- `date_won__gt` (optional): Filter by won date after (ISO format)
+- `date_won__lte` (optional): Filter by won date before or equal (ISO format)
+- `date_won__gte` (optional): Filter by won date after or equal (ISO format)
+- `value_period` (optional): Filter by value period (one_time/monthly/annual)
+- `query` (optional): Search query filter
+- `_order_by` (optional): Order by field (e.g., 'date_won' or '-date_won')
+- `_group_by` (optional): Group by field (e.g., 'user_id' or 'date_won__month')
+- `_fields` (optional): Fields to include in response
+- `lead_saved_search_id` (optional): Filter by lead saved search ID
+- `limit` (optional): Maximum number of results to return (default: 10)
+
+#### get_opportunity_details
+Get detailed information about a specific opportunity.
+
+Parameters:
+- `opportunity_id`: The ID of the opportunity to retrieve
+
+#### create_opportunity
+Create a new opportunity in Close.com.
+
+Parameters:
+- `lead_id` (optional): The ID of the lead to create the opportunity for
+- `status_id` (optional): The ID of the status to set
+- `value` (optional): The opportunity value
+- `value_period` (optional): The value period (one_time/monthly/annual)
+- `confidence` (optional): The confidence percentage (0-100)
+- `note` (optional): Additional notes about the opportunity
+- `custom` (optional): Custom fields to set
+
+#### update_opportunity
+Update an existing opportunity in Close.com.
+
+Parameters:
+- `opportunity_id`: The ID of the opportunity to update
+- `status_id` (optional): The ID of the status to set
+- `value` (optional): The opportunity value
+- `value_period` (optional): The value period (one_time/monthly/annual)
+- `confidence` (optional): The confidence percentage (0-100)
+- `note` (optional): Additional notes about the opportunity
+- `custom` (optional): Custom fields to set
+- `date_won` (optional): The date when the opportunity was won (ISO format)
+
+#### delete_opportunity
+Delete an opportunity in Close.com.
+
+Parameters:
+- `opportunity_id`: The ID of the opportunity to delete
 
 ## Security
 

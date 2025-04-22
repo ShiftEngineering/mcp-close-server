@@ -256,4 +256,101 @@ export class CloseClient {
       body: JSON.stringify(data),
     });
   }
+
+  // Opportunities API
+  async searchOpportunities(params: {
+    lead_id?: string;
+    user_id?: string;
+    status_id?: string;
+    status_label?: string;
+    status_type?: string;
+    date_created__lt?: string;
+    date_created__gt?: string;
+    date_created__lte?: string;
+    date_created__gte?: string;
+    date_updated__lt?: string;
+    date_updated__gt?: string;
+    date_updated__lte?: string;
+    date_updated__gte?: string;
+    date_won__lt?: string;
+    date_won__gt?: string;
+    date_won__lte?: string;
+    date_won__gte?: string;
+    value_period?: 'one_time' | 'monthly' | 'annual';
+    query?: string;
+    _order_by?: string;
+    _group_by?: string;
+    _fields?: string[];
+    lead_saved_search_id?: string;
+    limit?: number;
+  }): Promise<any> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.lead_id) searchParams.append('lead_id', params.lead_id);
+    if (params.user_id) searchParams.append('user_id', params.user_id);
+    if (params.status_id) searchParams.append('status_id', params.status_id);
+    if (params.status_label) searchParams.append('status_label', params.status_label);
+    if (params.status_type) searchParams.append('status_type', params.status_type);
+    if (params.date_created__lt) searchParams.append('date_created__lt', params.date_created__lt);
+    if (params.date_created__gt) searchParams.append('date_created__gt', params.date_created__gt);
+    if (params.date_created__lte) searchParams.append('date_created__lte', params.date_created__lte);
+    if (params.date_created__gte) searchParams.append('date_created__gte', params.date_created__gte);
+    if (params.date_updated__lt) searchParams.append('date_updated__lt', params.date_updated__lt);
+    if (params.date_updated__gt) searchParams.append('date_updated__gt', params.date_updated__gt);
+    if (params.date_updated__lte) searchParams.append('date_updated__lte', params.date_updated__lte);
+    if (params.date_updated__gte) searchParams.append('date_updated__gte', params.date_updated__gte);
+    if (params.date_won__lt) searchParams.append('date_won__lt', params.date_won__lt);
+    if (params.date_won__gt) searchParams.append('date_won__gt', params.date_won__gt);
+    if (params.date_won__lte) searchParams.append('date_won__lte', params.date_won__lte);
+    if (params.date_won__gte) searchParams.append('date_won__gte', params.date_won__gte);
+    if (params.value_period) searchParams.append('value_period', params.value_period);
+    if (params.query) searchParams.append('query', params.query);
+    if (params._order_by) searchParams.append('_order_by', params._order_by);
+    if (params._group_by) searchParams.append('_group_by', params._group_by);
+    if (params._fields) searchParams.append('_fields', params._fields.join(','));
+    if (params.lead_saved_search_id) searchParams.append('lead_saved_search_id', params.lead_saved_search_id);
+    if (params.limit) searchParams.append('_limit', params.limit.toString());
+
+    return this.request<any>(`/opportunity/?${searchParams}`);
+  }
+
+  async createOpportunity(data: {
+    lead_id?: string;
+    status_id?: string;
+    value?: number;
+    value_period?: 'one_time' | 'monthly' | 'annual';
+    confidence?: number;
+    note?: string;
+    custom?: Record<string, any>;
+  }): Promise<any> {
+    return this.request<any>('/opportunity/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getOpportunityById(opportunityId: string): Promise<any> {
+    return this.request<any>(`/opportunity/${opportunityId}/`);
+  }
+
+  async updateOpportunity(opportunityId: string, data: {
+    status_id?: string;
+    value?: number;
+    value_period?: 'one_time' | 'monthly' | 'annual';
+    confidence?: number;
+    note?: string;
+    custom?: Record<string, any>;
+    date_won?: string;
+  }): Promise<any> {
+    return this.request<any>(`/opportunity/${opportunityId}/`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteOpportunity(opportunityId: string): Promise<void> {
+    await this.request<void>(`/opportunity/${opportunityId}/`, {
+      method: 'DELETE',
+    });
+  }
 }

@@ -162,3 +162,57 @@ export function formatTaskSearchResults(results: any): string {
 
   return results.data.map((task: any) => formatTask(task)).join('\n---\n');
 }
+
+export function formatOpportunity(opportunity: any): string {
+  return `
+Opportunity:
+ID: ${opportunity.id}
+Status: ${opportunity.status_label} (${opportunity.status_type})
+Value: ${opportunity.value/100 || 0} ${opportunity.value_period || 'one_time'}
+Confidence: ${opportunity.confidence || 0}%
+Lead: ${opportunity.lead?.display_name || 'No lead'}
+Created: ${opportunity.date_created}
+Updated: ${opportunity.date_updated}
+${opportunity.date_won ? `Won: ${opportunity.date_won}` : ''}
+${opportunity.note ? `Note: ${opportunity.note}` : ''}
+${opportunity.custom ? `Custom Fields:\n${Object.entries(opportunity.custom)
+  .map(([key, value]) => `  ${key}: ${value}`)
+  .join('\n')}` : ''}
+`;
+}
+
+export function formatOpportunitySearchResults(results: any): string {
+  if (!results.data || results.data.length === 0) {
+    return 'No opportunities found.';
+  }
+
+  let formattedResults = '';
+
+  // Add aggregate values if they exist
+  if (results.total_results !== undefined) {
+    formattedResults += `Total Opportunities: ${results.total_results}\n`;
+  }
+  if (results.count_by_value_period) {
+    formattedResults += 'Opportunities by Value Period:\n';
+    Object.entries(results.count_by_value_period).forEach(([period, count]) => {
+      formattedResults += `  ${period}: ${count}\n`;
+    });
+  }
+  if (results.total_value_one_time) {
+    formattedResults += `Total One-Time Value: ${results.total_value_one_time}\n`;
+  }
+  if (results.total_value_monthly) {
+    formattedResults += `Total Monthly Value: ${results.total_value_monthly}\n`;
+  }
+  if (results.total_value_annual) {
+    formattedResults += `Total Annual Value: ${results.total_value_annual}\n`;
+  }
+  if (results.total_value_annualized) {
+    formattedResults += `Total Annualized Value: ${results.total_value_annualized}\n`;
+  }
+
+  formattedResults += '\nOpportunities:\n';
+  formattedResults += results.data.map((opportunity: any) => formatOpportunity(opportunity)).join('\n---\n');
+
+  return formattedResults;
+}

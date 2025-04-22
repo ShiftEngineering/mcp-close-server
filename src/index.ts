@@ -11,7 +11,9 @@ import {
   formatEmail,
   formatEmailSearchResults,
   formatTask,
-  formatTaskSearchResults
+  formatTaskSearchResults,
+  formatOpportunity,
+  formatOpportunitySearchResults
 } from "./formatter.js";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -518,6 +520,216 @@ server.tool(
           {
             type: "text",
             text: `Error deleting task: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Search Opportunities Tool
+server.tool(
+  "search_opportunities",
+  "Search for opportunities in Close.com",
+  {
+    lead_id: z.string().optional().describe("Filter by lead ID"),
+    user_id: z.string().optional().describe("Filter by user ID"),
+    status_id: z.string().optional().describe("Filter by status ID"),
+    status_label: z.string().optional().describe("Filter by status label"),
+    status_type: z.string().optional().describe("Filter by status type"),
+    date_created__lt: z.string().optional().describe("Filter by creation date before (ISO format)"),
+    date_created__gt: z.string().optional().describe("Filter by creation date after (ISO format)"),
+    date_created__lte: z.string().optional().describe("Filter by creation date before or equal (ISO format)"),
+    date_created__gte: z.string().optional().describe("Filter by creation date after or equal (ISO format)"),
+    date_updated__lt: z.string().optional().describe("Filter by update date before (ISO format)"),
+    date_updated__gt: z.string().optional().describe("Filter by update date after (ISO format)"),
+    date_updated__lte: z.string().optional().describe("Filter by update date before or equal (ISO format)"),
+    date_updated__gte: z.string().optional().describe("Filter by update date after or equal (ISO format)"),
+    date_won__lt: z.string().optional().describe("Filter by won date before (ISO format)"),
+    date_won__gt: z.string().optional().describe("Filter by won date after (ISO format)"),
+    date_won__lte: z.string().optional().describe("Filter by won date before or equal (ISO format)"),
+    date_won__gte: z.string().optional().describe("Filter by won date after or equal (ISO format)"),
+    value_period: z.enum(['one_time', 'monthly', 'annual']).optional().describe("Filter by value period"),
+    query: z.string().optional().describe("Search query filter"),
+    _order_by: z.string().optional().describe("Order by field (e.g., 'date_won' or '-date_won')"),
+    _group_by: z.string().optional().describe("Group by field (e.g., 'user_id' or 'date_won__month')"),
+    _fields: z.array(z.string()).optional().describe("Fields to include in response"),
+    lead_saved_search_id: z.string().optional().describe("Filter by lead saved search ID"),
+    limit: z.number().optional().describe("Maximum number of results to return (default: 10)"),
+  },
+  async (params) => {
+    try {
+      const results = await closeClient.searchOpportunities(params);
+      const formattedResults = formatOpportunitySearchResults(results);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedResults
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error searching opportunities:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error searching opportunities: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Get Opportunity Details Tool
+server.tool(
+  "get_opportunity_details",
+  "Get detailed information about a specific opportunity",
+  {
+    opportunity_id: z.string().describe("The ID of the opportunity to retrieve"),
+  },
+  async ({ opportunity_id }) => {
+    try {
+      const opportunity = await closeClient.getOpportunityById(opportunity_id);
+      const formattedOpportunity = formatOpportunity(opportunity);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedOpportunity
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error getting opportunity details:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error getting opportunity details: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Create Opportunity Tool
+server.tool(
+  "create_opportunity",
+  "Create a new opportunity in Close.com",
+  {
+    lead_id: z.string().optional().describe("The ID of the lead to create the opportunity for"),
+    status_id: z.string().optional().describe("The ID of the status to set"),
+    value: z.number().optional().describe("The opportunity value"),
+    value_period: z.enum(['one_time', 'monthly', 'annual']).optional().describe("The value period"),
+    confidence: z.number().optional().describe("The confidence percentage (0-100)"),
+    note: z.string().optional().describe("Additional notes about the opportunity"),
+    custom: z.record(z.any()).optional().describe("Custom fields to set"),
+  },
+  async (data) => {
+    try {
+      const opportunity = await closeClient.createOpportunity(data);
+      const formattedOpportunity = formatOpportunity(opportunity);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Opportunity created successfully:\n${formattedOpportunity}`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error creating opportunity:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error creating opportunity: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Update Opportunity Tool
+server.tool(
+  "update_opportunity",
+  "Update an existing opportunity in Close.com",
+  {
+    opportunity_id: z.string().describe("The ID of the opportunity to update"),
+    status_id: z.string().optional().describe("The ID of the status to set"),
+    value: z.number().optional().describe("The opportunity value"),
+    value_period: z.enum(['one_time', 'monthly', 'annual']).optional().describe("The value period"),
+    confidence: z.number().optional().describe("The confidence percentage (0-100)"),
+    note: z.string().optional().describe("Additional notes about the opportunity"),
+    custom: z.record(z.any()).optional().describe("Custom fields to set"),
+    date_won: z.string().optional().describe("The date when the opportunity was won (ISO format)"),
+  },
+  async ({ opportunity_id, ...data }) => {
+    try {
+      const opportunity = await closeClient.updateOpportunity(opportunity_id, data);
+      const formattedOpportunity = formatOpportunity(opportunity);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Opportunity updated successfully:\n${formattedOpportunity}`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error updating opportunity:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error updating opportunity: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Delete Opportunity Tool
+server.tool(
+  "delete_opportunity",
+  "Delete an opportunity in Close.com",
+  {
+    opportunity_id: z.string().describe("The ID of the opportunity to delete"),
+  },
+  async ({ opportunity_id }) => {
+    try {
+      await closeClient.deleteOpportunity(opportunity_id);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Opportunity ${opportunity_id} deleted successfully`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error deleting opportunity:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error deleting opportunity: ${error instanceof Error ? error.message : String(error)}`
           }
         ]
       };
