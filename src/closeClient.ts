@@ -132,4 +132,128 @@ export class CloseClient {
       method: 'DELETE',
     });
   }
+
+  // Tasks API
+  async searchTasks(params: {
+    id?: string;
+    id__in?: string[];
+    _type?: string;
+    lead_id?: string;
+    is_complete?: boolean;
+    date__lt?: string;
+    date__gt?: string;
+    date__lte?: string;
+    date__gte?: string;
+    date_created__lt?: string;
+    date_created__gt?: string;
+    date_created__lte?: string;
+    date_created__gte?: string;
+    assigned_to?: string;
+    view?: 'inbox' | 'future' | 'archive';
+    _order_by?: string;
+    limit?: number;
+  }): Promise<any> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.id) searchParams.append('id', params.id);
+    if (params.id__in) searchParams.append('id__in', params.id__in.join(','));
+    if (params._type) searchParams.append('_type', params._type);
+    if (params.lead_id) searchParams.append('lead_id', params.lead_id);
+    if (params.is_complete !== undefined) searchParams.append('is_complete', params.is_complete.toString());
+    if (params.date__lt) searchParams.append('date__lt', params.date__lt);
+    if (params.date__gt) searchParams.append('date__gt', params.date__gt);
+    if (params.date__lte) searchParams.append('date__lte', params.date__lte);
+    if (params.date__gte) searchParams.append('date__gte', params.date__gte);
+    if (params.date_created__lt) searchParams.append('date_created__lt', params.date_created__lt);
+    if (params.date_created__gt) searchParams.append('date_created__gt', params.date_created__gt);
+    if (params.date_created__lte) searchParams.append('date_created__lte', params.date_created__lte);
+    if (params.date_created__gte) searchParams.append('date_created__gte', params.date_created__gte);
+    if (params.assigned_to) searchParams.append('assigned_to', params.assigned_to);
+    if (params.view) searchParams.append('view', params.view);
+    if (params._order_by) searchParams.append('_order_by', params._order_by);
+    if (params.limit) searchParams.append('_limit', params.limit.toString());
+
+    return this.request<any>(`/task/?${searchParams}`);
+  }
+
+  async createTask(data: {
+    lead_id: string;
+    text: string;
+    date: string;
+    assigned_to?: string;
+  }): Promise<any> {
+    return this.request<any>('/task/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getTaskById(taskId: string): Promise<any> {
+    return this.request<any>(`/task/${taskId}/`);
+  }
+
+  async updateTask(taskId: string, data: {
+    assigned_to?: string;
+    date?: string;
+    is_complete?: boolean;
+    text?: string;
+  }): Promise<any> {
+    return this.request<any>(`/task/${taskId}/`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteTask(taskId: string): Promise<void> {
+    await this.request<void>(`/task/${taskId}/`, {
+      method: 'DELETE',
+    });
+  }
+
+  async bulkUpdateTasks(params: {
+    id?: string;
+    id__in?: string[];
+    _type?: string;
+    lead_id?: string;
+    is_complete?: boolean;
+    date__lt?: string;
+    date__gt?: string;
+    date__lte?: string;
+    date__gte?: string;
+    date_created__lt?: string;
+    date_created__gt?: string;
+    date_created__lte?: string;
+    date_created__gte?: string;
+    assigned_to?: string;
+    view?: 'inbox' | 'future' | 'archive';
+    _order_by?: string;
+  }, data: {
+    assigned_to?: string;
+    date?: string;
+    is_complete?: boolean;
+  }): Promise<any> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.id) searchParams.append('id', params.id);
+    if (params.id__in) searchParams.append('id__in', params.id__in.join(','));
+    if (params._type) searchParams.append('_type', params._type);
+    if (params.lead_id) searchParams.append('lead_id', params.lead_id);
+    if (params.is_complete !== undefined) searchParams.append('is_complete', params.is_complete.toString());
+    if (params.date__lt) searchParams.append('date__lt', params.date__lt);
+    if (params.date__gt) searchParams.append('date__gt', params.date__gt);
+    if (params.date__lte) searchParams.append('date__lte', params.date__lte);
+    if (params.date__gte) searchParams.append('date__gte', params.date__gte);
+    if (params.date_created__lt) searchParams.append('date_created__lt', params.date_created__lt);
+    if (params.date_created__gt) searchParams.append('date_created__gt', params.date_created__gt);
+    if (params.date_created__lte) searchParams.append('date_created__lte', params.date_created__lte);
+    if (params.date_created__gte) searchParams.append('date_created__gte', params.date_created__gte);
+    if (params.assigned_to) searchParams.append('assigned_to', params.assigned_to);
+    if (params.view) searchParams.append('view', params.view);
+    if (params._order_by) searchParams.append('_order_by', params._order_by);
+
+    return this.request<any>(`/task/?${searchParams}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
 }

@@ -9,7 +9,9 @@ import {
   formatLeadSearchResults, 
   formatContactSearchResults,
   formatEmail,
-  formatEmailSearchResults
+  formatEmailSearchResults,
+  formatTask,
+  formatTaskSearchResults
 } from "./formatter.js";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -314,6 +316,208 @@ server.tool(
           {
             type: "text",
             text: `Error getting email details: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Search Tasks Tool
+server.tool(
+  "search_tasks",
+  "Search for tasks in Close.com",
+  {
+    id: z.string().optional().describe("Filter by task ID"),
+    id__in: z.array(z.string()).optional().describe("Filter by multiple task IDs"),
+    _type: z.string().optional().describe("Filter by task type"),
+    lead_id: z.string().optional().describe("Filter by lead ID"),
+    is_complete: z.boolean().optional().describe("Filter by completion status"),
+    date__lt: z.string().optional().describe("Filter by date before (ISO format)"),
+    date__gt: z.string().optional().describe("Filter by date after (ISO format)"),
+    date__lte: z.string().optional().describe("Filter by date before or equal (ISO format)"),
+    date__gte: z.string().optional().describe("Filter by date after or equal (ISO format)"),
+    date_created__lt: z.string().optional().describe("Filter by creation date before (ISO format)"),
+    date_created__gt: z.string().optional().describe("Filter by creation date after (ISO format)"),
+    date_created__lte: z.string().optional().describe("Filter by creation date before or equal (ISO format)"),
+    date_created__gte: z.string().optional().describe("Filter by creation date after or equal (ISO format)"),
+    assigned_to: z.string().optional().describe("Filter by assigned user ID"),
+    view: z.enum(['inbox', 'future', 'archive']).optional().describe("Filter by view type"),
+    _order_by: z.string().optional().describe("Order by field (e.g., 'date' or '-date')"),
+    limit: z.number().optional().describe("Maximum number of results to return (default: 10)"),
+  },
+  async (params) => {
+    try {
+      const results = await closeClient.searchTasks(params);
+      const formattedResults = formatTaskSearchResults(results);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedResults
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error searching tasks:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error searching tasks: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Get Task Details Tool
+server.tool(
+  "get_task_details",
+  "Get detailed information about a specific task",
+  {
+    task_id: z.string().describe("The ID of the task to retrieve"),
+  },
+  async ({ task_id }) => {
+    try {
+      const task = await closeClient.getTaskById(task_id);
+      const formattedTask = formatTask(task);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedTask
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error getting task details:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error getting task details: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Create Task Tool
+server.tool(
+  "create_task",
+  "Create a new task in Close.com",
+  {
+    lead_id: z.string().describe("The ID of the lead to create the task for"),
+    text: z.string().describe("The task description"),
+    date: z.string().describe("The task date (ISO format)"),
+    assigned_to: z.string().optional().describe("The ID of the user to assign the task to"),
+  },
+  async ({ lead_id, text, date, assigned_to }) => {
+    try {
+      const task = await closeClient.createTask({
+        lead_id,
+        text,
+        date,
+        assigned_to,
+      });
+      const formattedTask = formatTask(task);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Task created successfully:\n${formattedTask}`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error creating task:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error creating task: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Update Task Tool
+server.tool(
+  "update_task",
+  "Update an existing task in Close.com",
+  {
+    task_id: z.string().describe("The ID of the task to update"),
+    assigned_to: z.string().optional().describe("The ID of the user to assign the task to"),
+    date: z.string().optional().describe("The new task date (ISO format)"),
+    is_complete: z.boolean().optional().describe("Whether the task is complete"),
+    text: z.string().optional().describe("The new task description"),
+  },
+  async ({ task_id, ...data }) => {
+    try {
+      const task = await closeClient.updateTask(task_id, data);
+      const formattedTask = formatTask(task);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Task updated successfully:\n${formattedTask}`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error updating task:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error updating task: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Delete Task Tool
+server.tool(
+  "delete_task",
+  "Delete a task in Close.com",
+  {
+    task_id: z.string().describe("The ID of the task to delete"),
+  },
+  async ({ task_id }) => {
+    try {
+      await closeClient.deleteTask(task_id);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Task ${task_id} deleted successfully`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error deleting task:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error deleting task: ${error instanceof Error ? error.message : String(error)}`
           }
         ]
       };

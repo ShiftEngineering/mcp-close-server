@@ -134,3 +134,31 @@ export function formatEmailSearchResults(results: any): string {
 
   return results.data.map((email: any) => formatEmail(email)).join('\n---\n');
 }
+
+export function formatTask(task: any): string {
+  return `
+Task:
+ID: ${task.id}
+Type: ${task._type}
+Status: ${task.is_complete ? 'Completed' : 'Incomplete'}
+Date: ${task.date}
+Assigned To: ${task.assigned_to?.name || 'Unassigned'}
+Text: ${task.text}
+Lead: ${task.lead?.display_name || 'No lead'}
+${task.object_type ? `Related Object: ${task.object_type} (${task.object_id})` : ''}
+${task.emails ? `Related Emails: ${task.emails.join(', ')}` : ''}
+${task.phone ? `Phone: ${task.phone}` : ''}
+${task.local_phone ? `Local Phone: ${task.local_phone}` : ''}
+${task.voicemail_duration ? `Voicemail Duration: ${task.voicemail_duration}s` : ''}
+${task.voicemail_url ? `Voicemail URL: ${task.voicemail_url}` : ''}
+${task.attachments?.length ? `Attachments: ${task.attachments.map((a: any) => a.filename).join(', ')}` : ''}
+`;
+}
+
+export function formatTaskSearchResults(results: any): string {
+  if (!results.data || results.data.length === 0) {
+    return 'No tasks found.';
+  }
+
+  return results.data.map((task: any) => formatTask(task)).join('\n---\n');
+}
