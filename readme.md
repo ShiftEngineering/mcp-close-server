@@ -8,6 +8,8 @@ An MCP (Model Context Protocol) server that connects to Close.com API, allowing 
 - Retrieve detailed lead information
 - Search for contacts in Close.com
 - Retrieve detailed contact information
+- Search for emails
+- Retrieve emails
 - Test connection to Close.com API
 
 ## Prerequisites
