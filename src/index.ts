@@ -13,7 +13,12 @@ import {
   formatTask,
   formatTaskSearchResults,
   formatOpportunity,
-  formatOpportunitySearchResults
+  formatOpportunitySearchResults,
+  formatCall,
+  formatCallSearchResults,
+  formatUser,
+  formatUserSearchResults,
+  formatUserAvailability
 } from "./formatter.js";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -730,6 +735,303 @@ server.tool(
           {
             type: "text",
             text: `Error deleting opportunity: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Search Calls Tool
+server.tool(
+  "search_calls",
+  "Search for call activities in Close.com",
+  {
+    lead_id: z.string().optional().describe("Filter by lead ID"),
+    user_id: z.string().optional().describe("Filter by user ID"),
+    date_created__gt: z.string().optional().describe("Filter by date created after (ISO format)"),
+    date_created__lt: z.string().optional().describe("Filter by date created before (ISO format)"),
+    call_method: z.enum(['regular', 'power', 'predictive']).optional().describe("Filter by call method"),
+    disposition: z.enum(['answered', 'no-answer', 'vm-answer', 'vm-left', 'busy', 'blocked', 'error', 'abandoned']).optional().describe("Filter by call disposition"),
+    _fields: z.array(z.string()).optional().describe("Fields to include in response"),
+    limit: z.number().optional().describe("Maximum number of results to return (default: 10)"),
+  },
+  async (params) => {
+    try {
+      const results = await closeClient.searchCalls(params);
+      const formattedResults = formatCallSearchResults(results);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedResults
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error searching calls:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error searching calls: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Get Call Details Tool
+server.tool(
+  "get_call_details",
+  "Get detailed information about a specific call activity",
+  {
+    call_id: z.string().describe("The ID of the call activity to retrieve"),
+  },
+  async ({ call_id }) => {
+    try {
+      const call = await closeClient.getCallById(call_id);
+      const formattedCall = formatCall(call);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedCall
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error getting call details:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error getting call details: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Create Call Tool
+server.tool(
+  "create_call",
+  "Create a new call activity in Close.com",
+  {
+    lead_id: z.string().describe("The ID of the lead associated with the call"),
+    status: z.enum(['completed']).optional().describe("Call status (defaults to 'completed')"),
+    direction: z.enum(['outbound', 'inbound']).optional().describe("Call direction"),
+    duration: z.number().optional().describe("Call duration in seconds"),
+    recording_url: z.string().url().optional().describe("URL to the MP3 recording of the call (must be HTTPS)"),
+    note_html: z.string().optional().describe("Call notes with rich text support"),
+    note: z.string().optional().describe("Plain text call notes"),
+    disposition: z.enum(['answered', 'no-answer', 'vm-answer', 'vm-left', 'busy', 'blocked', 'error', 'abandoned']).optional().describe("Call disposition"),
+    cost: z.number().optional().describe("Call cost in US cents (decimal number)"),
+  },
+  async (data) => {
+    try {
+      const call = await closeClient.createCall(data);
+      const formattedCall = formatCall(call);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Call created successfully:\n${formattedCall}`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error creating call:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error creating call: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Update Call Tool
+server.tool(
+  "update_call",
+  "Update an existing call activity in Close.com",
+  {
+    call_id: z.string().describe("The ID of the call activity to update"),
+    note_html: z.string().optional().describe("Call notes with rich text support"),
+    note: z.string().optional().describe("Plain text call notes"),
+    recording_url: z.string().url().optional().describe("URL to the MP3 recording of the call (must be HTTPS)"),
+    disposition: z.enum(['answered', 'no-answer', 'vm-answer', 'vm-left', 'busy', 'blocked', 'error', 'abandoned']).optional().describe("Call disposition"),
+    cost: z.number().optional().describe("Call cost in US cents (decimal number)"),
+  },
+  async ({ call_id, ...data }) => {
+    try {
+      const call = await closeClient.updateCall(call_id, data);
+      const formattedCall = formatCall(call);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Call updated successfully:\n${formattedCall}`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error updating call:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error updating call: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Delete Call Tool
+server.tool(
+  "delete_call",
+  "Delete a call activity in Close.com",
+  {
+    call_id: z.string().describe("The ID of the call activity to delete"),
+  },
+  async ({ call_id }) => {
+    try {
+      await closeClient.deleteCall(call_id);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Call ${call_id} deleted successfully`
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error deleting call:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error deleting call: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Get User Details Tool
+server.tool(
+  "get_user_details",
+  "Get detailed information about a specific user",
+  {
+    user_id: z.string().describe("The ID of the user to retrieve"),
+  },
+  async ({ user_id }) => {
+    try {
+      const user = await closeClient.getUserById(user_id);
+      const formattedUser = formatUser(user);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedUser
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error getting user details:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error getting user details: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// List Users Tool
+server.tool(
+  "list_users",
+  "List all users who are members of the same organizations as you are",
+  {},
+  async () => {
+    try {
+      const results = await closeClient.listUsers();
+      const formattedResults = formatUserSearchResults(results);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedResults
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error listing users:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error listing users: ${error instanceof Error ? error.message : String(error)}`
+          }
+        ]
+      };
+    }
+  }
+);
+
+// Get User Availability Tool
+server.tool(
+  "get_user_availability",
+  "Get the availability statuses of all users within an organization",
+  {
+    organization_id: z.string().optional().describe("The ID of the organization to check availability for"),
+  },
+  async ({ organization_id }) => {
+    try {
+      const availability = await closeClient.getUserAvailability(organization_id);
+      const formattedAvailability = formatUserAvailability(availability);
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: formattedAvailability
+          }
+        ]
+      };
+    } catch (error) {
+      console.error("Error getting user availability:", error);
+      return {
+        isError: true,
+        content: [
+          {
+            type: "text",
+            text: `Error getting user availability: ${error instanceof Error ? error.message : String(error)}`
           }
         ]
       };

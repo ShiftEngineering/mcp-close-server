@@ -353,4 +353,86 @@ export class CloseClient {
       method: 'DELETE',
     });
   }
+
+  // Call Activity API
+  async searchCalls(params: {
+    lead_id?: string;
+    user_id?: string;
+    date_created__gt?: string;
+    date_created__lt?: string;
+    call_method?: 'regular' | 'power' | 'predictive';
+    disposition?: 'answered' | 'no-answer' | 'vm-answer' | 'vm-left' | 'busy' | 'blocked' | 'error' | 'abandoned';
+    _fields?: string[];
+    limit?: number;
+  }): Promise<any> {
+    const searchParams = new URLSearchParams();
+    
+    if (params.lead_id) searchParams.append('lead_id', params.lead_id);
+    if (params.user_id) searchParams.append('user_id', params.user_id);
+    if (params.date_created__gt) searchParams.append('date_created__gt', params.date_created__gt);
+    if (params.date_created__lt) searchParams.append('date_created__lt', params.date_created__lt);
+    if (params.call_method) searchParams.append('call_method', params.call_method);
+    if (params.disposition) searchParams.append('disposition', params.disposition);
+    if (params._fields) searchParams.append('_fields', params._fields.join(','));
+    if (params.limit) searchParams.append('_limit', params.limit.toString());
+
+    return this.request<any>(`/activity/call/?${searchParams}`);
+  }
+
+  async getCallById(callId: string): Promise<any> {
+    return this.request<any>(`/activity/call/${callId}/`);
+  }
+
+  async createCall(data: {
+    lead_id: string;
+    status?: 'completed';
+    direction?: 'outbound' | 'inbound';
+    duration?: number;
+    recording_url?: string;
+    note_html?: string;
+    note?: string;
+    disposition?: 'answered' | 'no-answer' | 'vm-answer' | 'vm-left' | 'busy' | 'blocked' | 'error' | 'abandoned';
+    cost?: number;
+  }): Promise<any> {
+    return this.request<any>('/activity/call/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateCall(callId: string, data: {
+    note_html?: string;
+    note?: string;
+    recording_url?: string;
+    disposition?: 'answered' | 'no-answer' | 'vm-answer' | 'vm-left' | 'busy' | 'blocked' | 'error' | 'abandoned';
+    cost?: number;
+  }): Promise<any> {
+    return this.request<any>(`/activity/call/${callId}/`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteCall(callId: string): Promise<void> {
+    await this.request<void>(`/activity/call/${callId}/`, {
+      method: 'DELETE',
+    });
+  }
+
+  // User API
+  async getUserById(userId: string): Promise<any> {
+    return this.request<any>(`/user/${userId}/`);
+  }
+
+  async listUsers(): Promise<any> {
+    return this.request<any>('/user/');
+  }
+
+  async getUserAvailability(organizationId?: string): Promise<any> {
+    const params = new URLSearchParams();
+    if (organizationId) {
+      params.append('organization_id', organizationId);
+    }
+    return this.request<any>(`/user/availability/?${params}`);
+  }
 }

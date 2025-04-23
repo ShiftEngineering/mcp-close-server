@@ -40,6 +40,20 @@ An MCP (Model Context Protocol) server that connects to Close.com API, allowing 
   - Format opportunity data for easy reading
   - Track opportunity values and confidence levels
   - Manage opportunity status and won dates
+- Call Activity Management
+  - Search call activities with advanced filtering
+  - Create, update, and delete call activities
+  - Get detailed call information
+  - Format call data for easy reading
+  - Track call duration, disposition, and cost
+  - Support for regular, power dialer, and predictive dialer calls
+  - Access call recordings and transcripts
+- User Management
+  - Get detailed user information
+  - List all users in your organizations
+  - Check user availability status
+  - Track active calls and last seen times
+  - Format user data for easy reading
 
 ## Prerequisites
 
@@ -273,6 +287,77 @@ Delete an opportunity in Close.com.
 
 Parameters:
 - `opportunity_id`: The ID of the opportunity to delete
+
+### Call Tools
+
+#### search_calls
+Search for call activities in Close.com with various filters.
+
+Parameters:
+- `lead_id` (optional): Filter by lead ID
+- `user_id` (optional): Filter by user ID
+- `date_created__gt` (optional): Filter by date created after (ISO format)
+- `date_created__lt` (optional): Filter by date created before (ISO format)
+- `call_method` (optional): Filter by call method (regular/power/predictive)
+- `disposition` (optional): Filter by call disposition (answered/no-answer/vm-answer/vm-left/busy/blocked/error/abandoned)
+- `_fields` (optional): Fields to include in response (e.g., recording_transcript, voicemail_transcript)
+- `limit` (optional): Maximum number of results to return (default: 10)
+
+#### get_call_details
+Get detailed information about a specific call activity.
+
+Parameters:
+- `call_id`: The ID of the call activity to retrieve
+
+#### create_call
+Create a new call activity in Close.com (for calls made outside of Close VoIP system).
+
+Parameters:
+- `lead_id`: The ID of the lead associated with the call
+- `status` (optional): Call status (defaults to 'completed')
+- `direction` (optional): Call direction ('outbound' or 'inbound')
+- `duration` (optional): Call duration in seconds
+- `recording_url` (optional): URL to the MP3 recording of the call (must be HTTPS)
+- `note_html` (optional): Call notes with rich text support
+- `note` (optional): Plain text call notes
+- `disposition` (optional): Call disposition (answered/no-answer/vm-answer/vm-left/busy/blocked/error/abandoned)
+- `cost` (optional): Call cost in US cents (decimal number)
+
+#### update_call
+Update an existing call activity in Close.com.
+
+Parameters:
+- `call_id`: The ID of the call activity to update
+- `note_html` (optional): Call notes with rich text support
+- `note` (optional): Plain text call notes
+- `recording_url` (optional): URL to the MP3 recording of the call (must be HTTPS)
+- `disposition` (optional): Call disposition (answered/no-answer/vm-answer/vm-left/busy/blocked/error/abandoned)
+- `cost` (optional): Call cost in US cents (decimal number)
+
+#### delete_call
+Delete a call activity in Close.com.
+
+Parameters:
+- `call_id`: The ID of the call activity to delete
+
+### User Tools
+
+#### get_user_details
+Get detailed information about a specific user.
+
+Parameters:
+- `user_id`: The ID of the user to retrieve
+
+#### list_users
+List all users who are members of the same organizations as you are.
+
+No parameters required.
+
+#### get_user_availability
+Get the availability statuses of all users within an organization.
+
+Parameters:
+- `organization_id` (optional): The ID of the organization to check availability for
 
 ## Security
 

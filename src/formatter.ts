@@ -216,3 +216,100 @@ export function formatOpportunitySearchResults(results: any): string {
 
   return formattedResults;
 }
+
+export function formatCall(call: any): string {
+  return `
+Call Activity:
+ID: ${call.id}
+Status: ${call.status}
+Direction: ${call.direction}
+Method: ${call.call_method}
+Duration: ${call.duration || 0} seconds
+Disposition: ${call.disposition}
+Cost: ${call.cost ? `$${(call.cost/100).toFixed(2)}` : 'N/A'}
+Date: ${call.date_created}
+${call.recording_url ? `Recording URL: ${call.recording_url}` : ''}
+${call.recording_transcript ? `Recording Transcript: ${call.recording_transcript.summary_text}` : ''}
+${call.voicemail_transcript ? `Voicemail Transcript: ${call.voicemail_transcript.summary_text}` : ''}
+${call.note_html || call.note ? `Notes: ${call.note_html || call.note}` : ''}
+`;
+}
+
+export function formatCallSearchResults(results: any): string {
+  if (!results.data || results.data.length === 0) {
+    return 'No call activities found.';
+  }
+
+  let formattedResults = '';
+
+  // Add aggregate values if they exist
+  if (results.total_results !== undefined) {
+    formattedResults += `Total Calls: ${results.total_results}\n`;
+  }
+  if (results.total_duration) {
+    formattedResults += `Total Duration: ${results.total_duration} seconds\n`;
+  }
+  if (results.total_cost) {
+    formattedResults += `Total Cost: $${(results.total_cost/100).toFixed(2)}\n`;
+  }
+
+  formattedResults += '\nCalls:\n';
+  formattedResults += results.data.map((call: any) => formatCall(call)).join('\n---\n');
+
+  return formattedResults;
+}
+
+export function formatUser(user: any): string {
+  return `
+User:
+ID: ${user.id}
+Name: ${user.name}
+Email: ${user.email}
+Role: ${user.role}
+Organization: ${user.organization_id}
+Created: ${user.date_created}
+Updated: ${user.date_updated}
+${user.phone ? `Phone: ${user.phone}` : ''}
+${user.image ? `Image URL: ${user.image}` : ''}
+${user.custom ? `Custom Fields:\n${Object.entries(user.custom)
+  .map(([key, value]) => `  ${key}: ${value}`)
+  .join('\n')}` : ''}
+`;
+}
+
+export function formatUserSearchResults(results: any): string {
+  if (!results.data || results.data.length === 0) {
+    return 'No users found.';
+  }
+
+  let formattedResults = '';
+
+  // Add total count if available
+  if (results.total_results !== undefined) {
+    formattedResults += `Total Users: ${results.total_results}\n`;
+  }
+
+  formattedResults += '\nUsers:\n';
+  formattedResults += results.data.map((user: any) => formatUser(user)).join('\n---\n');
+
+  return formattedResults;
+}
+
+export function formatUserAvailability(availability: any): string {
+  if (!availability.data || availability.data.length === 0) {
+    return 'No user availability data found.';
+  }
+
+  let formattedResults = '';
+
+  formattedResults += '\nUser Availability:\n';
+  formattedResults += availability.data.map((user: any) => `
+User: ${user.name} (${user.email})
+Status: ${user.status}
+${user.active_calls?.length ? `Active Calls: ${user.active_calls.length}` : 'No active calls'}
+${user.last_seen ? `Last Seen: ${user.last_seen}` : ''}
+${user.organization_id ? `Organization: ${user.organization_id}` : ''}
+`).join('\n---\n');
+
+  return formattedResults;
+}
