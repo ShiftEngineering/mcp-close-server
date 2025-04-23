@@ -4,56 +4,34 @@ An MCP (Model Context Protocol) server that connects to Close.com API, allowing 
 
 ## Features
 
-- Search for leads in Close.com
-- Retrieve detailed lead information
-- Search for contacts in Close.com
-- Retrieve detailed contact information
-- Search for emails
-- Retrieve emails
-- Search for tasks
-- Create, update, and delete tasks
-- Test connection to Close.com API
 - Lead Management
-  - Search leads with advanced filtering
-  - Create, update, and delete leads
+  - Search leads with query and limit
   - Get detailed lead information
-  - Format lead data for easy reading
 - Contact Management
-  - Search contacts with advanced filtering
-  - Create, update, and delete contacts
   - Get detailed contact information
-  - Format contact data for easy reading
 - Email Activity Management
-  - Search email activities with advanced filtering
-  - Create, update, and delete email activities
-  - Get detailed email information
-  - Format email data for easy reading
+  - Get email details
+  - Create, update, and delete emails
+  - Support for email templates and attachments
 - Task Management
-  - Search tasks with advanced filtering
   - Create, update, and delete tasks
   - Get detailed task information
-  - Format task data for easy reading
 - Opportunity Management
-  - Search opportunities with advanced filtering
   - Create, update, and delete opportunities
   - Get detailed opportunity information
-  - Format opportunity data for easy reading
   - Track opportunity values and confidence levels
   - Manage opportunity status and won dates
 - Call Activity Management
-  - Search call activities with advanced filtering
-  - Create, update, and delete call activities
-  - Get detailed call information
-  - Format call data for easy reading
+  - Get call details
+  - Create, update, and delete calls
   - Track call duration, disposition, and cost
-  - Support for regular, power dialer, and predictive dialer calls
-  - Access call recordings and transcripts
+  - Support for call recordings
 - User Management
   - Get detailed user information
-  - List all users in your organizations
+  - List all users
   - Check user availability status
-  - Track active calls and last seen times
-  - Format user data for easy reading
+- API Connection Testing
+  - Verify Close.com API connectivity
 
 ## Prerequisites
 
@@ -141,14 +119,6 @@ Get detailed information about a specific lead.
 Parameters:
 - `lead_id` (string): The ID of the lead to retrieve
 
-### search_contacts
-
-Search for contacts in Close.com.
-
-Parameters:
-- `query` (string): Search query string (e.g., name, email, etc.)
-- `limit` (number, optional): Maximum number of results to return (default: 10)
-
 ### get_contact_details
 
 Get detailed information about a specific contact.
@@ -156,35 +126,49 @@ Get detailed information about a specific contact.
 Parameters:
 - `contact_id` (string): The ID of the contact to retrieve
 
-### search_tasks
+### get_email_details
 
-Search for tasks in Close.com.
-
-Parameters:
-- `id` (string, optional): Filter by task ID
-- `id__in` (string[], optional): Filter by multiple task IDs
-- `_type` (string, optional): Filter by task type
-- `lead_id` (string, optional): Filter by lead ID
-- `is_complete` (boolean, optional): Filter by completion status
-- `date__lt` (string, optional): Filter by date before (ISO format)
-- `date__gt` (string, optional): Filter by date after (ISO format)
-- `date__lte` (string, optional): Filter by date before or equal (ISO format)
-- `date__gte` (string, optional): Filter by date after or equal (ISO format)
-- `date_created__lt` (string, optional): Filter by creation date before (ISO format)
-- `date_created__gt` (string, optional): Filter by creation date after (ISO format)
-- `date_created__lte` (string, optional): Filter by creation date before or equal (ISO format)
-- `date_created__gte` (string, optional): Filter by creation date after or equal (ISO format)
-- `assigned_to` (string, optional): Filter by assigned user ID
-- `view` (enum, optional): Filter by view type ('inbox', 'future', 'archive')
-- `_order_by` (string, optional): Order by field (e.g., 'date' or '-date')
-- `limit` (number, optional): Maximum number of results to return (default: 10)
-
-### get_task_details
-
-Get detailed information about a specific task.
+Get detailed information about a specific email.
 
 Parameters:
-- `task_id` (string): The ID of the task to retrieve
+- `email_id` (string): The ID of the email to retrieve
+
+### create_email
+
+Create a new email in Close.com.
+
+Parameters:
+- `lead_id` (string): The ID of the lead to create the email for
+- `status` (string): Email status ('inbox', 'draft', 'scheduled', 'outbox', 'sent')
+- `subject` (string): Email subject
+- `body_text` (string, optional): Plain text email body
+- `body_html` (string, optional): HTML email body
+- `template_id` (string, optional): Email template ID
+- `date_scheduled` (string, optional): Scheduled date (ISO format)
+- `send_in` (number, optional): Seconds until sending
+- `followup_date` (string, optional): Follow-up date (ISO format)
+- `sender` (string, optional): Sender email address
+- `attachments` (array, optional): Array of attachment objects
+
+### update_email
+
+Update an existing email in Close.com.
+
+Parameters:
+- `email_id` (string): The ID of the email to update
+- `status` (string, optional): Email status
+- `subject` (string, optional): Email subject
+- `body_text` (string, optional): Plain text email body
+- `body_html` (string, optional): HTML email body
+- `date_scheduled` (string, optional): Scheduled date (ISO format)
+- `followup_date` (string, optional): Follow-up date (ISO format)
+
+### delete_email
+
+Delete an email in Close.com.
+
+Parameters:
+- `email_id` (string): The ID of the email to delete
 
 ### create_task
 
@@ -195,6 +179,13 @@ Parameters:
 - `text` (string): The task description
 - `date` (string): The task date (ISO format)
 - `assigned_to` (string, optional): The ID of the user to assign the task to
+
+### get_task_details
+
+Get detailed information about a specific task.
+
+Parameters:
+- `task_id` (string): The ID of the task to retrieve
 
 ### update_task
 
@@ -214,154 +205,117 @@ Delete a task in Close.com.
 Parameters:
 - `task_id` (string): The ID of the task to delete
 
+### create_opportunity
+
+Create a new opportunity in Close.com.
+
+Parameters:
+- `lead_id` (string, optional): The ID of the lead
+- `status_id` (string, optional): The status ID
+- `value` (number, optional): Opportunity value
+- `value_period` (string, optional): Value period ('one_time', 'monthly', 'annual')
+- `confidence` (number, optional): Confidence level
+- `note` (string, optional): Opportunity note
+- `custom` (object, optional): Custom fields
+
+### get_opportunity_details
+
+Get detailed information about a specific opportunity.
+
+Parameters:
+- `opportunity_id` (string): The ID of the opportunity to retrieve
+
+### update_opportunity
+
+Update an existing opportunity in Close.com.
+
+Parameters:
+- `opportunity_id` (string): The ID of the opportunity to update
+- `status_id` (string, optional): The status ID
+- `value` (number, optional): Opportunity value
+- `value_period` (string, optional): Value period ('one_time', 'monthly', 'annual')
+- `confidence` (number, optional): Confidence level
+- `note` (string, optional): Opportunity note
+- `custom` (object, optional): Custom fields
+- `date_won` (string, optional): Date won (ISO format)
+
+### delete_opportunity
+
+Delete an opportunity in Close.com.
+
+Parameters:
+- `opportunity_id` (string): The ID of the opportunity to delete
+
+### get_call_details
+
+Get detailed information about a specific call.
+
+Parameters:
+- `call_id` (string): The ID of the call to retrieve
+
+### create_call
+
+Create a new call in Close.com.
+
+Parameters:
+- `lead_id` (string): The ID of the lead
+- `status` (string, optional): Call status ('completed')
+- `direction` (string, optional): Call direction ('outbound', 'inbound')
+- `duration` (number, optional): Call duration in seconds
+- `recording_url` (string, optional): URL of call recording
+- `note_html` (string, optional): HTML formatted note
+- `note` (string, optional): Plain text note
+- `disposition` (string, optional): Call disposition
+- `cost` (number, optional): Call cost
+
+### update_call
+
+Update an existing call in Close.com.
+
+Parameters:
+- `call_id` (string): The ID of the call to update
+- `note_html` (string, optional): HTML formatted note
+- `note` (string, optional): Plain text note
+- `recording_url` (string, optional): URL of call recording
+- `disposition` (string, optional): Call disposition
+- `cost` (number, optional): Call cost
+
+### delete_call
+
+Delete a call in Close.com.
+
+Parameters:
+- `call_id` (string): The ID of the call to delete
+
+### get_user_details
+
+Get detailed information about a specific user.
+
+Parameters:
+- `user_id` (string): The ID of the user to retrieve
+
+### list_users
+
+List all users in the organization.
+
+No parameters required.
+
+### get_user_availability
+
+Get user availability status.
+
+Parameters:
+- `organization_id` (string, optional): The ID of the organization
+
 ### test_connection
 
 Test the connection to Close.com API.
 
 No parameters required.
 
-### Opportunity Tools
-
-#### search_opportunities
-Search for opportunities in Close.com with various filters.
-
-Parameters:
-- `lead_id` (optional): Filter by lead ID
-- `user_id` (optional): Filter by user ID
-- `status_id` (optional): Filter by status ID
-- `status_label` (optional): Filter by status label
-- `status_type` (optional): Filter by status type
-- `date_created__lt` (optional): Filter by creation date before (ISO format)
-- `date_created__gt` (optional): Filter by creation date after (ISO format)
-- `date_created__lte` (optional): Filter by creation date before or equal (ISO format)
-- `date_created__gte` (optional): Filter by creation date after or equal (ISO format)
-- `date_updated__lt` (optional): Filter by update date before (ISO format)
-- `date_updated__gt` (optional): Filter by update date after (ISO format)
-- `date_updated__lte` (optional): Filter by update date before or equal (ISO format)
-- `date_updated__gte` (optional): Filter by update date after or equal (ISO format)
-- `date_won__lt` (optional): Filter by won date before (ISO format)
-- `date_won__gt` (optional): Filter by won date after (ISO format)
-- `date_won__lte` (optional): Filter by won date before or equal (ISO format)
-- `date_won__gte` (optional): Filter by won date after or equal (ISO format)
-- `value_period` (optional): Filter by value period (one_time/monthly/annual)
-- `query` (optional): Search query filter
-- `_order_by` (optional): Order by field (e.g., 'date_won' or '-date_won')
-- `_group_by` (optional): Group by field (e.g., 'user_id' or 'date_won__month')
-- `_fields` (optional): Fields to include in response
-- `lead_saved_search_id` (optional): Filter by lead saved search ID
-- `limit` (optional): Maximum number of results to return (default: 10)
-
-#### get_opportunity_details
-Get detailed information about a specific opportunity.
-
-Parameters:
-- `opportunity_id`: The ID of the opportunity to retrieve
-
-#### create_opportunity
-Create a new opportunity in Close.com.
-
-Parameters:
-- `lead_id` (optional): The ID of the lead to create the opportunity for
-- `status_id` (optional): The ID of the status to set
-- `value` (optional): The opportunity value
-- `value_period` (optional): The value period (one_time/monthly/annual)
-- `confidence` (optional): The confidence percentage (0-100)
-- `note` (optional): Additional notes about the opportunity
-- `custom` (optional): Custom fields to set
-
-#### update_opportunity
-Update an existing opportunity in Close.com.
-
-Parameters:
-- `opportunity_id`: The ID of the opportunity to update
-- `status_id` (optional): The ID of the status to set
-- `value` (optional): The opportunity value
-- `value_period` (optional): The value period (one_time/monthly/annual)
-- `confidence` (optional): The confidence percentage (0-100)
-- `note` (optional): Additional notes about the opportunity
-- `custom` (optional): Custom fields to set
-- `date_won` (optional): The date when the opportunity was won (ISO format)
-
-#### delete_opportunity
-Delete an opportunity in Close.com.
-
-Parameters:
-- `opportunity_id`: The ID of the opportunity to delete
-
-### Call Tools
-
-#### search_calls
-Search for call activities in Close.com with various filters.
-
-Parameters:
-- `lead_id` (optional): Filter by lead ID
-- `user_id` (optional): Filter by user ID
-- `date_created__gt` (optional): Filter by date created after (ISO format)
-- `date_created__lt` (optional): Filter by date created before (ISO format)
-- `call_method` (optional): Filter by call method (regular/power/predictive)
-- `disposition` (optional): Filter by call disposition (answered/no-answer/vm-answer/vm-left/busy/blocked/error/abandoned)
-- `_fields` (optional): Fields to include in response (e.g., recording_transcript, voicemail_transcript)
-- `limit` (optional): Maximum number of results to return (default: 10)
-
-#### get_call_details
-Get detailed information about a specific call activity.
-
-Parameters:
-- `call_id`: The ID of the call activity to retrieve
-
-#### create_call
-Create a new call activity in Close.com (for calls made outside of Close VoIP system).
-
-Parameters:
-- `lead_id`: The ID of the lead associated with the call
-- `status` (optional): Call status (defaults to 'completed')
-- `direction` (optional): Call direction ('outbound' or 'inbound')
-- `duration` (optional): Call duration in seconds
-- `recording_url` (optional): URL to the MP3 recording of the call (must be HTTPS)
-- `note_html` (optional): Call notes with rich text support
-- `note` (optional): Plain text call notes
-- `disposition` (optional): Call disposition (answered/no-answer/vm-answer/vm-left/busy/blocked/error/abandoned)
-- `cost` (optional): Call cost in US cents (decimal number)
-
-#### update_call
-Update an existing call activity in Close.com.
-
-Parameters:
-- `call_id`: The ID of the call activity to update
-- `note_html` (optional): Call notes with rich text support
-- `note` (optional): Plain text call notes
-- `recording_url` (optional): URL to the MP3 recording of the call (must be HTTPS)
-- `disposition` (optional): Call disposition (answered/no-answer/vm-answer/vm-left/busy/blocked/error/abandoned)
-- `cost` (optional): Call cost in US cents (decimal number)
-
-#### delete_call
-Delete a call activity in Close.com.
-
-Parameters:
-- `call_id`: The ID of the call activity to delete
-
-### User Tools
-
-#### get_user_details
-Get detailed information about a specific user.
-
-Parameters:
-- `user_id`: The ID of the user to retrieve
-
-#### list_users
-List all users who are members of the same organizations as you are.
-
-No parameters required.
-
-#### get_user_availability
-Get the availability statuses of all users within an organization.
-
-Parameters:
-- `organization_id` (optional): The ID of the organization to check availability for
-
 ## Security
 
-This server only performs read-only operations on your Close.com account. The API key should be kept secure and not shared.
+This server performs read and write operations on your Close.com account. The API key should be kept secure and not shared.
 
 ## License
 
