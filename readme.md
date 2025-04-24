@@ -41,9 +41,36 @@ An MCP (Model Context Protocol) server that connects to Close.com API, allowing 
 
 ## Installation
 
+### Option 1: Install via npm/npx (Recommended)
+
+1. Install the package globally:
+   ```bash
+   npm install -g @shiftengineering/mcp-close-server
+   ```
+
+2. Configure Claude Desktop to use this server by editing your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "close": {
+      "command": "npx",
+      "args": [
+        "@shiftengineering/mcp-close-server"
+      ],
+      "env": {
+        "CLOSE_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Option 2: Install from source
+
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/mcp-close-server.git
+   git clone https://github.com/shiftengineering/mcp-close-server.git
    cd mcp-close-server
    ```
 
@@ -70,7 +97,8 @@ npm start
 
 ### Using with Claude Desktop
 
-1. Build the project as described above
+1. If you installed via npm/npx, skip to step 2. If you installed from source, build the project as described above.
+
 2. Configure Claude Desktop to use this server by editing your `claude_desktop_config.json`:
 
 ```json
