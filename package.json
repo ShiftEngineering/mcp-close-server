@@ -1,6 +1,6 @@
 {
   "name": "@shiftengineering/mcp-close-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for Close.com. Please see the README for more information.",
   "main": "build/index.js",
   "type": "module",
